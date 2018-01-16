@@ -23,6 +23,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     test.vm.provider :virtualbox do |vb, override|
       override.vm.box = "ubuntu/xenial64"
       vb.memory = 4096
+      vb.cpus = 6
       vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
     end
 
@@ -33,45 +34,4 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     end
   end
 
-  config.vm.define "dev", primary: true do |dev|
-    dev.vm.hostname = "vagrant-verium-miner-dev"
-    dev.vm.network :private_network, type: "dhcp"
-
-    dev.vm.provision "ansible" do |ansible|
-      ansible.playbook = "ansible/playbook-dev.yml"
-    end
-
-    if Vagrant.has_plugin?("vagrant-cachier")
-      dev.cache.scope = :machine
-    end
-
-    dev.vm.synced_folder ".", "/vagrant"
-
-    dev.vm.provider :virtualbox do |vb, override|
-      override.vm.box = "ubuntu/trusty64"
-      vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
-    end
-  end
-
-  config.vm.define "ci" do |ci|
-    ci.vm.box = "ubuntu/trusty64"
-
-    ci.vm.hostname = "vagrant-verium-miner-ci"
-    ci.vm.network :private_network, type: "dhcp"
-
-    ci.vm.provision "ansible" do |ansible|
-      ansible.playbook = "ansible/playbook-ci.yml"
-    end
-
-    if Vagrant.has_plugin?("vagrant-cachier")
-      ci.cache.scope = :machine
-    end
-
-    ci.vm.synced_folder ".", "/vagrant"
-
-    ci.vm.provider :virtualbox do |vb|
-      vb.memory = 2048
-      vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
-    end
-  end
 end
